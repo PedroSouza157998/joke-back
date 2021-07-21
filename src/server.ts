@@ -1,16 +1,12 @@
 const port = 3333;
-import './database/connection'
+import './database/connection';
 import express from 'express';
-import cors from 'cors';
-
+import routes from './routes/route';
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+app.use(routes)
 
-app.post('/register', (req, res) => {
-    console.log(req.body)
-})
 
 app.listen(port);
 console.log('server running in port ', port);
