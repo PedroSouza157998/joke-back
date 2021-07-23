@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import User from '../models/User';
 import Joke from '../models/Post';
-import { getRepository, RelationId } from 'typeorm';
+import { getRepository } from 'typeorm';
 export default {
 
     async create(req: Request, res: Response) {
@@ -42,8 +42,8 @@ export default {
     async login(req: Request, res: Response) {
         const { login, password } = req.body;
         const UsersRepository = getRepository(User);
-        const users = await UsersRepository.find({ where: { login, password } });
-        res.send(users)
+        const users = await UsersRepository.find({ where: { "login": login, "password":password } });
+        res.json(users)
 
     },
 
