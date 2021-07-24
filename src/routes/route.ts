@@ -8,6 +8,9 @@ routes.post('/save_joke/:id', Controller.newPost)
 routes.get('/users', Controller.index)
 routes.get('/user/:id', Controller.show)
 routes.post('/login', Controller.login)
+routes.post('/checkRegister', Controller.checkRegister)
+routes.post('/getById', Controller.getById)
 routes.get('/feed', Controller.feed)
+routes.get('/public/:id', Controller.userPublic)
 
 export default routes;

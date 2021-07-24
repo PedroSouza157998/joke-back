@@ -65,4 +65,24 @@ export default {
         const jokes = await JokeRepository.find({ relations: ['user_id'] });
         res.send(jokes)
     },
+    async userPublic(req: Request, res: Response){
+        const { id } = req.params
+        const JokeRepository = getRepository(Joke);
+        const jokes = await JokeRepository.find({where: {"user_id": {"id": id}}, relations: ['user_id'] });
+        res.send(jokes)
+    },
+    async checkRegister(req: Request, res: Response) {
+        const { login } = req.body;
+        const UsersRepository = getRepository(User);
+        const users = await UsersRepository.find({ where: { "login": login } });
+        res.json(users)
+
+    },
+    async getById(req: Request, res: Response) {
+        const { login, password } = req.body;
+        const UsersRepository = getRepository(User);
+        const users = await UsersRepository.find({ where: { "login": login, "password":password } });
+        res.json(users)
+
+    }
 }
