@@ -6,7 +6,7 @@ export default {
 
     async create(req: Request, res: Response) {
         try {
-            const {name, login, password} = req.body
+            const { name, login, password } = req.body
             console.log(name);
             console.log(login);
             console.log(password);
@@ -17,7 +17,7 @@ export default {
             await UsersRepository.save(user)
             console.log(`usuário ${name} criado`)
             res.send(login + " - " + password)
-        }catch(err){
+        } catch (err) {
             console.log(err)
         }
 
@@ -42,7 +42,7 @@ export default {
     async login(req: Request, res: Response) {
         const { login, password } = req.body;
         const UsersRepository = getRepository(User);
-        const users = await UsersRepository.find({ where: { "login": login, "password":password } });
+        const users = await UsersRepository.find({ where: { "login": login, "password": password } });
         res.json(users)
 
     },
@@ -55,7 +55,7 @@ export default {
             const JokeRepository = getRepository(Joke);
             const post = JokeRepository.create({ joke, user_id, date });
             await JokeRepository.save(post)
-            res.send(post)
+            res.json(post)
         } catch (error) {
             res.json(error)
         }
@@ -65,10 +65,10 @@ export default {
         const jokes = await JokeRepository.find({ relations: ['user_id'] });
         res.send(jokes)
     },
-    async userPublic(req: Request, res: Response){
+    async userPublic(req: Request, res: Response) {
         const { id } = req.params
         const JokeRepository = getRepository(Joke);
-        const jokes = await JokeRepository.find({where: {"user_id": {"id": id}}, relations: ['user_id'] });
+        const jokes = await JokeRepository.find({ where: { "user_id": { "id": id } }, relations: ['user_id'] });
         res.send(jokes)
     },
     async checkRegister(req: Request, res: Response) {
@@ -78,11 +78,25 @@ export default {
         res.json(users)
 
     },
-    async getById(req: Request, res: Response) {
-        const { login, password } = req.body;
-        const UsersRepository = getRepository(User);
-        const users = await UsersRepository.find({ where: { "login": login, "password":password } });
-        res.json(users)
+    async putJoke(req: Request, res: Response) {
+        const { joke, id } = req.body;
+        // const { id } = req.params;
+        const JokeRepository = getRepository(Joke);
+        // const jokes = await JokeRepository.update({where: {"id": id}, relations:['user_id']})
+        const jokes = await JokeRepository.update({ id }, {joke})
+            // .then(r => {
+            //     console.log(r)
+            // })
 
+        res.json(jokes)
+    },
+    async deleteJoke(req: Request, res: Response) {
+        const { id } = req.body;
+        console.log(id)
+        const JokeRepository = getRepository(Joke);
+        const jokes = await JokeRepository.delete({ id });
+
+        console.log({ jokes })
+        res.json(jokes)
     }
 }
