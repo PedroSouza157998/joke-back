@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import User from '../models/User';
 import Joke from '../models/Post';
-import { getRepository } from 'typeorm';
+import { getRepository, Not } from 'typeorm';
 export default {
 
     async create(req: Request, res: Response) {
@@ -16,20 +16,17 @@ export default {
 
             await UsersRepository.save(user)
             console.log(`usuário ${name} criado`)
-            res.send(login + " - " + password)
+            res.json(user)
         } catch (err) {
             console.log(err)
         }
 
     },
-
-
-    async index(req: Request, res: Response) {
+    async index(req: Request, res: Response){
         const UsersRepository = getRepository(User);
-        const users = await UsersRepository.find();
-        res.send(users)
+        const users = UsersRepository.find()
+        res.json(users)
     },
-
 
     async show(req: Request, res: Response) {
         const { id } = req.params
@@ -61,9 +58,12 @@ export default {
         }
     },
     async feed(req: Request, res: Response) {
+        const { id } = req.body;
+        
         const JokeRepository = getRepository(Joke);
-        const jokes = await JokeRepository.find({ relations: ['user_id'] });
-        res.send(jokes)
+        const jokesUser = await JokeRepository.find({where: {user_id: {id: (id)} } ,relations: ['user_id']});
+        const jokesOutherUsers = await JokeRepository.find({where: {user_id: {id: Not(id)}},relations: ['user_id']});
+        res.send([jokesUser, jokesOutherUsers])
     },
     async userPublic(req: Request, res: Response) {
         const { id } = req.params
@@ -80,23 +80,34 @@ export default {
     },
     async putJoke(req: Request, res: Response) {
         const { joke, id } = req.body;
-        // const { id } = req.params;
         const JokeRepository = getRepository(Joke);
-        // const jokes = await JokeRepository.update({where: {"id": id}, relations:['user_id']})
-        const jokes = await JokeRepository.update({ id }, {joke})
-            // .then(r => {
-            //     console.log(r)
-            // })
-
+        const jokes = await JokeRepository.findOneOrFail(id)
+        jokes.joke = joke;
+        JokeRepository.save(jokes)
         res.json(jokes)
     },
     async deleteJoke(req: Request, res: Response) {
-        const { id } = req.body;
-        console.log(id)
+        try {
+            const { id } = req.body;
+            
+            const JokeRepository = getRepository(Joke);
+            await JokeRepository.delete({ id });
+            res.json({
+                success: true,
+                message: "Transação realizada com sucesso",
+            })
+        } catch (error) {
+            res.json({
+                success: false,
+                message: "Transação falhou",
+                error 
+            })
+        }
+    },
+    async jokesFromUser (req: Request, res: Response) {
+        const { id } = req.body
         const JokeRepository = getRepository(Joke);
-        const jokes = await JokeRepository.delete({ id });
-
-        console.log({ jokes })
+        const jokes = await JokeRepository.find({where: {"user_id": id}})
         res.json(jokes)
     }
 }
